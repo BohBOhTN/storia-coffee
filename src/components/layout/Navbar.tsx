@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, LogOut } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 
 export default function Navbar() {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [notificationCount, setNotificationCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -36,11 +36,6 @@ export default function Navbar() {
       document.removeEventListener('click', handleClickOutside);
     };
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  };
 
   const toggleNotifications = (event) => {
     event.stopPropagation();
@@ -83,11 +78,7 @@ export default function Navbar() {
                 )}
               </div>
             )}
-            <span className="text-gray-700">{user?.name}</span>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <span className="text-gray-700">Hello, {user?.name}</span>
           </div>
         </div>
       </div>
