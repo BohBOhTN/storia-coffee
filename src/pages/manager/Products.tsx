@@ -9,7 +9,6 @@ interface Product {
   price: number;
   category: string;
   image: string;
-  stock: number;
 }
 
 const dummyProducts: Product[] = [
@@ -19,7 +18,6 @@ const dummyProducts: Product[] = [
     price: 3.50,
     category: 'Hot Coffee',
     image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
-    stock: 100
   },
   {
     id: 2,
@@ -27,7 +25,6 @@ const dummyProducts: Product[] = [
     price: 4.50,
     category: 'Hot Coffee',
     image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
-    stock: 85
   },
 ];
 
@@ -91,9 +88,6 @@ export default function Products() {
                 Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Stock
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -118,9 +112,6 @@ export default function Products() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   ${product.price.toFixed(2)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.stock}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
