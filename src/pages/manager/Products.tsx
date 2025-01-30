@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import Modal from '../../components/ui/Modal';
 
 interface Product {
   id: number;
@@ -31,8 +32,20 @@ const dummyProducts: Product[] = [
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newProductName, setNewProductName] = useState('');
+  const [newProductPrice, setNewProductPrice] = useState('');
+  const [newProductCategory, setNewProductCategory] = useState('');
+  const [newProductImageUrl, setNewProductImageUrl] = useState('');
+  const [categories, setCategories] = useState(['all', 'Hot Coffee', 'Iced Coffee', 'Tea', 'Pastries']);
 
-  const categories = ['all', 'Hot Coffee', 'Iced Coffee', 'Tea', 'Pastries'];
+  useEffect(() => {
+    // Fetch categories from API and set them
+    // Example:
+    // fetch('/api/categories')
+    //   .then(response => response.json())
+    //   .then(data => setCategories(['all', ...data.categories.map(category => category.name)]));
+  }, []);
 
   const filteredProducts = dummyProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -40,11 +53,24 @@ export default function Products() {
     return matchesSearch && matchesCategory;
   });
 
+  const handleAddProduct = () => {
+    if (newProductName.trim() === '' || newProductPrice.trim() === '' || newProductCategory.trim() === '') return;
+    // Add product to API
+    // Example:
+    // fetch('/api/products', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ name: newProductName, price: newProductPrice, category_id: newProductCategory, image_url: newProductImageUrl })
+    // }).then(response => response.json())
+    //   .then(data => setProducts([...products, data.product]));
+    setIsAddModalOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-        <Button>
+        <Button onClick={() => setIsAddModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Product
         </Button>
@@ -128,6 +154,50 @@ export default function Products() {
           </tbody>
         </table>
       </div>
+
+      {isAddModalOpen && (
+        <Modal onClose={() => setIsAddModalOpen(false)}>
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">Add Product</h2>
+            <div className="mb-4">
+              <Input
+                type="text"
+                value={newProductName}
+                onChange={(e) => setNewProductName(e.target.value)}
+                placeholder="Product name"
+                className="mb-2"
+              />
+              <Input
+                type="number"
+                value={newProductPrice}
+                onChange={(e) => setNewProductPrice(e.target.value)}
+                placeholder="Price"
+                className="mb-2"
+              />
+              <select
+                value={newProductCategory}
+                onChange={(e) => setNewProductCategory(e.target.value)}
+                className="rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500 mb-2 w-full"
+              >
+                <option value="">Select category</option>
+                {categories.slice(1).map(category => (
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+              <Input
+                type="text"
+                value={newProductImageUrl}
+                onChange={(e) => setNewProductImageUrl(e.target.value)}
+                placeholder="Image URL"
+                className="mb-2"
+              />
+              <Button onClick={handleAddProduct}>Add Product</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
