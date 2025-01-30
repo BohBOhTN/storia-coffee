@@ -10,7 +10,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>({ id: 1, name: 'Test User', email: 'test@example.com' });
+  const [user, setUser] = useState<User | null>(
+    { id: 1, name: 'Test Manager', email: 'manager@example.com', role: 'manager' }
+    // { id: 2, name: 'Test User', email: 'user@example.com', role: 'user' } // Uncomment this line to switch to a simple user
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   // Temporarily disable authentication logic
