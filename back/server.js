@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors'); // Import cors middleware
 const usersRouter = require('./routes/users');
 const categoriesRouter = require('./routes/categories');
 const articlesRouter = require('./routes/articles');
@@ -11,6 +12,7 @@ const notificationsRouter = require('./routes/notifications');
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(cors()); // Enable CORS for all routes
 app.use(bodyParser.json());
 
 app.use('/users', usersRouter);
