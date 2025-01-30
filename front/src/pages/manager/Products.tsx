@@ -8,12 +8,19 @@ interface Product {
   id: number;
   name: string;
   price: string;
+  category_id: number | null;
   image_url: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
 }
 
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<{ [key: number]: string }>({});
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newProductName, setNewProductName] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
@@ -22,7 +29,21 @@ export default function Products() {
   useEffect(() => {
     fetch('http://localhost:3000/articles')
       .then(response => response.json())
-      .then(data => setProducts(data));
+      .then(data => {
+        setProducts(data);
+        data.forEach((product: Product) => {
+          if (product.category_id !== null) {
+            fetch(`http://localhost:3000/categories/${product.category_id}`)
+              .then(response => response.json())
+              .then((category: Category) => {
+                setCategories(prevCategories => ({
+                  ...prevCategories,
+                  [category.id]: category.name
+                }));
+              });
+          }
+        });
+      });
   }, []);
 
   const filteredProducts = products.filter(product => 
@@ -74,6 +95,9 @@ export default function Products() {
                 Price
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Category
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Image
               </th>
             </tr>
@@ -86,6 +110,9 @@ export default function Products() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   ${parseFloat(product.price).toFixed(2)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {product.category_id !== null ? categories[product.category_id] || 'Loading...' : 'Uncategorized'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="h-10 w-10 flex-shrink-0">
