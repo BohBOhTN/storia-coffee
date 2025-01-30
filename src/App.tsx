@@ -10,6 +10,7 @@ import Products from './pages/manager/Products';
 import Users from './pages/manager/Users';
 import Alerts from './pages/manager/Alerts';
 import Sales from './pages/user/Sales';
+import Categories from './components/pages/Categories'; // Correct import path for Categories page
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ function App() {
                 <Route path="products" element={<Products />} />
                 <Route path="users" element={<Users />} />
                 <Route path="alerts" element={<Alerts />} />
+                <Route path="categories" element={<Categories />} /> {/* Add Categories route */}
                 
                 {/* User Routes */}
                 <Route path="sales" element={<Sales />} />

@@ -23,6 +23,7 @@ export default function Sidebar() {
     { to: '/products', icon: Coffee, label: 'Products' },
     { to: '/users', icon: Users, label: 'Users' },
     { to: '/alerts', icon: Bell, label: 'Alerts' },
+    { to: '/categories', icon: Coffee, label: 'Categories' }, // Added Categories link
   ];
 
   const userLinks = [
