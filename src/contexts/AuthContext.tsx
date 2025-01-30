@@ -10,18 +10,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>({ id: 1, name: 'Test User', email: 'test@example.com' });
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // TODO: Validate token and fetch user data
-      setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
-  }, []);
+  // Temporarily disable authentication logic
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     // TODO: Validate token and fetch user data
+  //     setIsLoading(false);
+  //   } else {
+  //     setIsLoading(false);
+  //   }
+  // }, []);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading }}>

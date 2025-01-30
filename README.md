@@ -48,7 +48,11 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     ```bash
     npm install
     ```
-3. Run the application:
+3. Configure environment variables:
+    ```bash
+    cp .env.example .env
+    ```
+4. Run the application:
     ```bash
     npm start
     ```
