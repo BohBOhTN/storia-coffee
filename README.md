@@ -94,6 +94,7 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     }
     ```
 - **Get Users**: `GET /users`
+- **Get User by ID**: `GET /users/:id`
 - **Update User**: `PUT /users/:id`
     ```json
     {
@@ -115,6 +116,7 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     }
     ```
 - **Get Products**: `GET /articles`
+- **Get Product by ID**: `GET /articles/:id`
 - **Update Product**: `PUT /articles/:id`
     ```json
     {
@@ -135,6 +137,7 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     }
     ```
 - **Get Categories**: `GET /categories`
+- **Get Category by ID**: `GET /categories/:id`
 - **Update Category**: `PUT /categories/:id`
     ```json
     {
@@ -154,6 +157,7 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     }
     ```
 - **Get Sales**: `GET /sales`
+- **Get Sale by ID**: `GET /sales/:id`
 - **Update Sale**: `PUT /sales/:id`
     ```json
     {
@@ -176,6 +180,7 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     }
     ```
 - **Get Product Alerts**: `GET /product_alerts`
+- **Get Product Alert by ID**: `GET /product_alerts/:id`
 - **Update Product Alert**: `PUT /product_alerts/:id`
     ```json
     {
@@ -198,6 +203,7 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     }
     ```
 - **Get Notifications**: `GET /notifications`
+- **Get Notification by ID**: `GET /notifications/:id`
 - **Update Notification**: `PUT /notifications/:id`
     ```json
     {
