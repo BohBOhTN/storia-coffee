@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Download } from 'lucide-react';
+import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
@@ -9,7 +9,6 @@ interface User {
   email: string;
   role: 'manager' | 'user';
   status: 'active' | 'inactive';
-  lastLogin: string;
 }
 
 const dummyUsers: User[] = [
@@ -19,7 +18,6 @@ const dummyUsers: User[] = [
     email: 'john@example.com',
     role: 'manager',
     status: 'active',
-    lastLogin: '2024-03-15 14:30'
   },
   {
     id: 2,
@@ -27,7 +25,6 @@ const dummyUsers: User[] = [
     email: 'jane@example.com',
     role: 'user',
     status: 'active',
-    lastLogin: '2024-03-14 09:15'
   },
 ];
 
@@ -47,16 +44,10 @@ export default function Users() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-        <div className="flex space-x-4">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export CSV
-          </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
-        </div>
+        <Button>
+          <Plus className="h-4 w-4 mr-2" />
+          Add User
+        </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -95,9 +86,6 @@ export default function Users() {
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Last Login
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -130,9 +118,6 @@ export default function Users() {
                   }`}>
                     {user.status}
                   </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.lastLogin}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
