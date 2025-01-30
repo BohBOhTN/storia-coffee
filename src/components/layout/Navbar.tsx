@@ -55,7 +55,7 @@ export default function Navbar() {
           </div>
           <div className="flex items-center space-x-4">
             {user?.role === 'manager' && (
-              <div className="relative notification-bell">
+              <div className="relative notification-bell mr-4">
                 <button className="text-gray-500 hover:text-gray-700" onClick={toggleNotifications}>
                   <Bell className="h-6 w-6" />
                 </button>
@@ -78,7 +78,7 @@ export default function Navbar() {
                 )}
               </div>
             )}
-            <span className="text-gray-700">Hello, {user?.name}</span>
+            {/* Removed user greeting */}
           </div>
         </div>
       </div>
