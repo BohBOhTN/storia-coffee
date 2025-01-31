@@ -47,7 +47,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             : item
         );
       }
-      return [...currentItems, { ...product, quantity: 1 }];
+      return [...currentItems, { ...product, price: parseFloat(product.price as unknown as string), quantity: 1 }];
     });
   };
 

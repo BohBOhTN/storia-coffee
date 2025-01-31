@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Coffee, Search, ShoppingBag } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -9,37 +10,10 @@ interface Product {
   id: number;
   name: string;
   price: number;
-  image: string;
+  image_url: string;
   category: string;
   description: string;
 }
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: 'Espresso',
-    price: 3.50,
-    category: 'Hot Coffee',
-    description: 'Rich and bold espresso shot',
-    image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 2,
-    name: 'Cappuccino',
-    price: 4.50,
-    category: 'Hot Coffee',
-    description: 'Espresso with steamed milk foam',
-    image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
-  },
-  {
-    id: 3,
-    name: 'Iced Latte',
-    price: 4.00,
-    category: 'Cold Coffee',
-    description: 'Chilled espresso with milk',
-    image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
-  },
-];
 
 const categories = ['All', 'Hot Coffee', 'Cold Coffee', 'Tea', 'Pastries'];
 
@@ -47,7 +21,31 @@ export default function Sales() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [products, setProducts] = useState<Product[]>([]);
   const { addItem, itemCount } = useCart();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productResponse = await axios.get('http://localhost:3000/articles/');
+        const productsWithCategory = await Promise.all(
+          productResponse.data.map(async (product: any) => {
+            const categoryResponse = await axios.get(`http://localhost:3000/categories/${product.category_id}`);
+            return {
+              ...product,
+              price: parseFloat(product.price), // Convert price to number
+              category: categoryResponse.data.name,
+            };
+          })
+        );
+        setProducts(productsWithCategory);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -109,7 +107,7 @@ export default function Sales() {
           >
             <div className="aspect-w-3 aspect-h-2">
               <img
-                src={product.image}
+                src={product.image_url}
                 alt={product.name}
                 className="w-full h-48 object-cover"
               />
