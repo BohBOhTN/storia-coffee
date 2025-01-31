@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import Modal from '../../components/ui/Modal';
@@ -20,12 +20,15 @@ interface Category {
 export default function Products() {
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<{ [key: number]: string }>({});
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [newProductName, setNewProductName] = useState('');
   const [newProductPrice, setNewProductPrice] = useState('');
+  const [newProductCategoryId, setNewProductCategoryId] = useState<number | null>(null);
   const [newProductImageUrl, setNewProductImageUrl] = useState('');
 
   useEffect(() => {
@@ -36,28 +39,18 @@ export default function Products() {
         }
         return response.json();
       })
-      .then(data => {
-        setProducts(data);
-        data.forEach((product: Product) => {
-          if (product.category_id !== null) {
-            fetch(`http://localhost:3000/categories/${product.category_id}`)
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error('Network response was not ok');
-                }
-                return response.json();
-              })
-              .then((category: Category) => {
-                setCategories(prevCategories => ({
-                  ...prevCategories,
-                  [category.id]: category.name
-                }));
-              })
-              .catch(error => console.error('Error fetching category:', error));
-          }
-        });
-      })
+      .then(data => setProducts(data))
       .catch(error => console.error('Error fetching products:', error));
+
+    fetch('http://localhost:3000/categories')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => setCategories(data))
+      .catch(error => console.error('Error fetching categories:', error));
   }, []);
 
   const filteredProducts = products.filter(product => 
@@ -65,14 +58,14 @@ export default function Products() {
   );
 
   const handleAddProduct = () => {
-    if (newProductName.trim() === '' || newProductPrice.trim() === '' || newProductImageUrl.trim() === '') return;
+    if (newProductName.trim() === '' || newProductPrice.trim() === '' || newProductImageUrl.trim() === '' || newProductCategoryId === null) return;
     fetch('http://localhost:3000/articles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: newProductName,
         price: parseFloat(newProductPrice),
-        category_id: null, // Update this as needed
+        category_id: newProductCategoryId,
         image_url: newProductImageUrl
       })
     }).then(response => {
@@ -84,6 +77,31 @@ export default function Products() {
     .then(data => setProducts([...products, data]))
     .catch(error => console.error('Error adding product:', error));
     setIsAddModalOpen(false);
+  };
+
+  const handleEditProduct = () => {
+    if (productToEdit && newProductName.trim() !== '' && newProductPrice.trim() !== '' && newProductImageUrl.trim() !== '' && newProductCategoryId !== null) {
+      fetch(`http://localhost:3000/articles/${productToEdit.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newProductName,
+          price: parseFloat(newProductPrice),
+          category_id: newProductCategoryId,
+          image_url: newProductImageUrl
+        })
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(updatedProduct => {
+        setProducts(products.map(product => product.id === updatedProduct.id ? updatedProduct : product));
+      })
+      .catch(error => console.error('Error updating product:', error));
+      setIsEditModalOpen(false);
+    }
   };
 
   const handleDeleteProduct = (id: number) => {
@@ -99,12 +117,13 @@ export default function Products() {
     .catch(error => console.error('Error deleting product:', error));
   };
 
-  const handleEditProduct = (id: number) => {
-    // Implement edit functionality
-  };
-
-  const handleViewProduct = (id: number) => {
-    // Implement view functionality
+  const openEditModal = (product: Product) => {
+    setProductToEdit(product);
+    setNewProductName(product.name);
+    setNewProductPrice(product.price);
+    setNewProductCategoryId(product.category_id);
+    setNewProductImageUrl(product.image_url);
+    setIsEditModalOpen(true);
   };
 
   const openDeleteModal = (product: Product) => {
@@ -164,7 +183,7 @@ export default function Products() {
                   ${parseFloat(product.price).toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {product.category_id !== null ? categories[product.category_id] || 'Loading...' : 'Uncategorized'}
+                  {product.category_id !== null ? categories.find(category => category.id === product.category_id)?.name || 'Loading...' : 'Uncategorized'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="h-10 w-10 flex-shrink-0">
@@ -173,10 +192,7 @@ export default function Products() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
-                    <button onClick={() => handleViewProduct(product.id)} className="text-blue-600 hover:text-blue-900">
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button onClick={() => handleEditProduct(product.id)} className="text-blue-600 hover:text-blue-900">
+                    <button onClick={() => openEditModal(product)} className="text-blue-600 hover:text-blue-900">
                       <Edit className="h-4 w-4" />
                     </button>
                     <button onClick={() => openDeleteModal(product)} className="text-red-600 hover:text-red-900">
@@ -209,6 +225,18 @@ export default function Products() {
                 placeholder="Price"
                 className="mb-2"
               />
+              <select
+                value={newProductCategoryId ?? ''}
+                onChange={(e) => setNewProductCategoryId(Number(e.target.value))}
+                className="rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500 mb-2 w-full"
+              >
+                <option value="" disabled>Select category</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
               <Input
                 type="text"
                 value={newProductImageUrl}
@@ -217,6 +245,50 @@ export default function Products() {
                 className="mb-2"
               />
               <Button onClick={handleAddProduct}>Add Product</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {isEditModalOpen && productToEdit && (
+        <Modal onClose={() => setIsEditModalOpen(false)}>
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+            <div className="mb-4">
+              <Input
+                type="text"
+                value={newProductName}
+                onChange={(e) => setNewProductName(e.target.value)}
+                placeholder="Product name"
+                className="mb-2"
+              />
+              <Input
+                type="number"
+                value={newProductPrice}
+                onChange={(e) => setNewProductPrice(e.target.value)}
+                placeholder="Price"
+                className="mb-2"
+              />
+              <select
+                value={newProductCategoryId ?? ''}
+                onChange={(e) => setNewProductCategoryId(Number(e.target.value))}
+                className="rounded-md border-gray-300 shadow-sm focus:border-brown-500 focus:ring-brown-500 mb-2 w-full"
+              >
+                <option value="" disabled>Select category</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <Input
+                type="text"
+                value={newProductImageUrl}
+                onChange={(e) => setNewProductImageUrl(e.target.value)}
+                placeholder="Image URL"
+                className="mb-2"
+              />
+              <Button onClick={handleEditProduct}>Update Product</Button>
             </div>
           </div>
         </Modal>
