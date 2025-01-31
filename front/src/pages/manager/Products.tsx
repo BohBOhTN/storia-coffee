@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -32,24 +33,12 @@ export default function Products() {
   const [newProductImageUrl, setNewProductImageUrl] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:3000/articles')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => setProducts(data))
+    axios.get('http://localhost:3000/articles')
+      .then(response => setProducts(response.data))
       .catch(error => console.error('Error fetching products:', error));
 
-    fetch('http://localhost:3000/categories')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => setCategories(data))
+    axios.get('http://localhost:3000/categories')
+      .then(response => setCategories(response.data))
       .catch(error => console.error('Error fetching categories:', error));
   }, []);
 
@@ -59,45 +48,27 @@ export default function Products() {
 
   const handleAddProduct = () => {
     if (newProductName.trim() === '' || newProductPrice.trim() === '' || newProductImageUrl.trim() === '' || newProductCategoryId === null) return;
-    fetch('http://localhost:3000/articles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: newProductName,
-        price: parseFloat(newProductPrice),
-        category_id: newProductCategoryId,
-        image_url: newProductImageUrl
-      })
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
+    axios.post('http://localhost:3000/articles', {
+      name: newProductName,
+      price: parseFloat(newProductPrice),
+      category_id: newProductCategoryId,
+      image_url: newProductImageUrl
     })
-    .then(data => setProducts([...products, data]))
+    .then(response => setProducts([...products, response.data]))
     .catch(error => console.error('Error adding product:', error));
     setIsAddModalOpen(false);
   };
 
   const handleEditProduct = () => {
     if (productToEdit && newProductName.trim() !== '' && newProductPrice.trim() !== '' && newProductImageUrl.trim() !== '' && newProductCategoryId !== null) {
-      fetch(`http://localhost:3000/articles/${productToEdit.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newProductName,
-          price: parseFloat(newProductPrice),
-          category_id: newProductCategoryId,
-          image_url: newProductImageUrl
-        })
-      }).then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
+      axios.put(`http://localhost:3000/articles/${productToEdit.id}`, {
+        name: newProductName,
+        price: parseFloat(newProductPrice),
+        category_id: newProductCategoryId,
+        image_url: newProductImageUrl
       })
-      .then(updatedProduct => {
-        setProducts(products.map(product => product.id === updatedProduct.id ? updatedProduct : product));
+      .then(response => {
+        setProducts(products.map(product => product.id === response.data.id ? response.data : product));
       })
       .catch(error => console.error('Error updating product:', error));
       setIsEditModalOpen(false);
@@ -105,16 +76,12 @@ export default function Products() {
   };
 
   const handleDeleteProduct = (id: number) => {
-    fetch(`http://localhost:3000/articles/${id}`, {
-      method: 'DELETE'
-    }).then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      setProducts(products.filter(product => product.id !== id));
-      setIsDeleteModalOpen(false);
-    })
-    .catch(error => console.error('Error deleting product:', error));
+    axios.delete(`http://localhost:3000/articles/${id}`)
+      .then(() => {
+        setProducts(products.filter(product => product.id !== id));
+        setIsDeleteModalOpen(false);
+      })
+      .catch(error => console.error('Error deleting product:', error));
   };
 
   const openEditModal = (product: Product) => {
