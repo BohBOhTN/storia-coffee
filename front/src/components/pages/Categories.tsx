@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
@@ -14,46 +15,91 @@ export default function Categories() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [productsCount, setProductsCount] = useState(0);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    // Fetch categories from API and set them
-    // Example:
-    // fetch('/api/categories')
-    //   .then(response => response.json())
-    //   .then(data => setCategories(data.categories));
-    setCategories([
-      { id: 1, name: 'Beverages', image_url: 'https://images.pexels.com/photos/1187766/pexels-photo-1187766.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', created_at: '2023-01-01', products: ['Espresso', 'Latte'] },
-      { id: 2, name: 'Snacks', image_url: 'https://th.bing.com/th/id/R.bda4ece9a55f481be93fefd2339af52b?rik=9nr6o1%2bHGSGKng&riu=http%3a%2f%2fimages6.fanpop.com%2fimage%2fphotos%2f36200000%2fFood-image-food-36200386-1762-1319.jpg&ehk=UwYWPUfnqy7V9fXlLWLigiJizPqF967WO9Eya%2fBpbnw%3d&risl=&pid=ImgRaw&r=0', created_at: '2023-01-02', products: ['Croissant', 'Muffin'] }
-    ]); // Placeholder categories
+    axios.get('http://localhost:3000/categories')
+      .then(response => {
+        setCategories(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching categories:', error);
+      });
   }, []);
 
   const handleAddCategory = () => {
     if (newCategory.trim() === '') return;
-    // Add category to API
-    // Example:
-    // fetch('/api/categories', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ name: newCategory, image_url: newImageUrl })
-    // }).then(response => response.json())
-    //   .then(data => setCategories([...categories, data.category]));
-    setCategories([...categories, { id: categories.length + 1, name: newCategory, image_url: newImageUrl, created_at: new Date().toISOString(), products: [] }]); // Placeholder add
-    setNewCategory('');
-    setNewImageUrl('');
-    setIsAddModalOpen(false);
+    const newCategoryData = { name: newCategory, image_url: newImageUrl };
+    axios.post('http://localhost:3000/categories', newCategoryData)
+      .then(response => {
+        setCategories([...categories, response.data]);
+        setNewCategory('');
+        setNewImageUrl('');
+        setIsAddModalOpen(false);
+      })
+      .catch(error => {
+        console.error('Error adding category:', error);
+      });
   };
 
   const handleDeleteCategory = (id) => {
-    // Delete category from API
-    // Example:
-    // fetch(`/api/categories/${id}`, { method: 'DELETE' })
-    //   .then(() => setCategories(categories.filter(cat => cat.id !== id)));
-    setCategories(categories.filter(cat => cat.id !== id)); // Placeholder delete
+    setCategoryToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteCategory = () => {
+    axios.delete(`http://localhost:3000/categories/${categoryToDelete}`)
+      .then(() => {
+        setCategories(categories.filter(cat => cat.id !== categoryToDelete));
+        setIsDeleteModalOpen(false);
+        setCategoryToDelete(null);
+      })
+      .catch(error => {
+        console.error('Error deleting category:', error);
+      });
   };
 
   const handleViewCategory = (category) => {
     setSelectedCategory(category);
-    setIsModalOpen(true);
+    axios.get('http://localhost:3000/articles')
+      .then(response => {
+        const filteredProducts = response.data.filter(product => product.category_id === category.id);
+        setProducts(filteredProducts);
+        setProductsCount(filteredProducts.length);
+        setIsModalOpen(true);
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+      });
+  };
+
+  const handleEditCategory = (category) => {
+    setNewCategory(category.name);
+    setNewImageUrl(category.image_url);
+    setSelectedCategory(category);
+    setIsEditMode(true);
+    setIsAddModalOpen(true);
+  };
+
+  const handleSaveCategory = () => {
+    if (newCategory.trim() === '') return;
+    const updatedCategoryData = { name: newCategory, image_url: newImageUrl };
+    axios.put(`http://localhost:3000/categories/${selectedCategory.id}`, updatedCategoryData)
+      .then(response => {
+        setCategories(categories.map(cat => cat.id === selectedCategory.id ? response.data : cat));
+        setNewCategory('');
+        setNewImageUrl('');
+        setIsAddModalOpen(false);
+        setIsEditMode(false);
+        setSelectedCategory(null);
+      })
+      .catch(error => {
+        console.error('Error updating category:', error);
+      });
   };
 
   const filteredCategories = categories.filter(category =>
@@ -116,14 +162,14 @@ export default function Categories() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(category.created_at).toLocaleDateString()}
+                  {new Date(category.created_at).toLocaleDateString('en-GB')}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
                     <button className="text-blue-600 hover:text-blue-900" onClick={() => handleViewCategory(category)}>
                       <Eye className="h-4 w-4" />
                     </button>
-                    <button className="text-blue-600 hover:text-blue-900">
+                    <button className="text-blue-600 hover:text-blue-900" onClick={() => handleEditCategory(category)}>
                       <Edit className="h-4 w-4" />
                     </button>
                     <button className="text-red-600 hover:text-red-900" onClick={() => handleDeleteCategory(category.id)}>
@@ -139,14 +185,20 @@ export default function Categories() {
 
       {isModalOpen && selectedCategory && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <div className="p-4">
+          <div className="p-4 text-center">
+            <img src={selectedCategory.image_url} alt={selectedCategory.name} className="h-48 w-48 rounded-full mx-auto mb-4 object-cover" />
             <h2 className="text-xl font-bold mb-4">{selectedCategory.name}</h2>
-            <img src={selectedCategory.image_url} alt={selectedCategory.name} className="h-48 w-full object-cover mb-4 rounded-lg" />
-            <p className="text-gray-600 mb-4">Created on: {new Date(selectedCategory.created_at).toLocaleDateString()}</p>
-            <h3 className="text-lg font-bold mb-2">Products</h3>
+            <p className="text-gray-600 mb-4">Created on: {new Date(selectedCategory.created_at).toLocaleDateString('en-GB')}</p>
+            <p className="text-gray-600 mb-4">Number of products: {productsCount}</p>
             <ul className="list-disc list-inside">
-              {selectedCategory.products.map((product, index) => (
-                <li key={index}>{product}</li>
+              {products.map((product) => (
+                <li key={product.id} className="flex items-center mb-2">
+                  <img src={product.image_url} alt={product.name} className="h-10 w-10 rounded-full object-cover mr-2" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{product.name}</p>
+                    <p className="text-sm text-gray-600">${product.price}</p>
+                  </div>
+                </li>
               ))}
             </ul>
           </div>
@@ -156,7 +208,7 @@ export default function Categories() {
       {isAddModalOpen && (
         <Modal onClose={() => setIsAddModalOpen(false)}>
           <div className="p-4">
-            <h2 className="text-xl font-bold mb-4">Add Category</h2>
+            <h2 className="text-xl font-bold mb-4">{isEditMode ? 'Edit Category' : 'Add Category'}</h2>
             <div className="mb-4">
               <Input
                 type="text"
@@ -172,7 +224,22 @@ export default function Categories() {
                 placeholder="Image URL"
                 className="mb-2"
               />
-              <Button onClick={handleAddCategory}>Add Category</Button>
+              <Button onClick={isEditMode ? handleSaveCategory : handleAddCategory}>
+                {isEditMode ? 'Save Changes' : 'Add Category'}
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {isDeleteModalOpen && (
+        <Modal onClose={() => setIsDeleteModalOpen(false)}>
+          <div className="p-4">
+            <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+            <p>Are you sure you want to delete this category?</p>
+            <div className="flex justify-end space-x-4 mt-4">
+              <Button onClick={() => setIsDeleteModalOpen(false)}>No</Button>
+              <Button onClick={confirmDeleteCategory} className="bg-red-600 text-white">Yes</Button>
             </div>
           </div>
         </Modal>
