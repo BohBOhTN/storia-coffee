@@ -85,6 +85,21 @@ Real-time coffee shop management system with role-based dashboards and smart sal
 ## Backend CRUD Operations 📚
 
 ### User Management
+- **Register User**: `POST /users/register`
+    ```json
+    {
+        "email": "example@example.com",
+        "password": "examplePassword",
+        "role": "manager"
+    }
+    ```
+- **Login User**: `POST /users/login`
+    ```json
+    {
+        "email": "example@example.com",
+        "password": "examplePassword"
+    }
+    ```
 - **Create User**: `POST /users`
     ```json
     {
@@ -104,6 +119,16 @@ Real-time coffee shop management system with role-based dashboards and smart sal
     }
     ```
 - **Delete User**: `DELETE /users/:id`
+- **Get Authenticated User**: `GET /users/me`
+    - Requires JWT token in the `Authorization` header.
+    - Returns the authenticated user's data.
+    ```json
+    {
+        "id": 1,
+        "email": "example@example.com",
+        "role": "manager"
+    }
+    ```
 
 ### Product Management
 - **Create Product**: `POST /articles`
@@ -250,6 +275,13 @@ The server is configured in `server.js` and uses the following routes:
 - `/sales` for sales management
 - `/product_alerts` for product alerts management
 - `/notifications` for notifications management
+
+### Authentication
+
+The server uses JWT for authentication. The following routes are available:
+- **Register User**: `POST /users/register`
+- **Login User**: `POST /users/login`
+
 
 ## Contributing 🤝
 

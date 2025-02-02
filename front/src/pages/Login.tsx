@@ -6,7 +6,8 @@ import { Coffee } from 'lucide-react';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../lib/axios';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -17,6 +18,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const { setUser } = useAuth();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -27,11 +29,16 @@ export default function Login() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      const response = await api.post('/auth/login', data);
-      const { user, token } = response.data;
+      const response = await axios.post('http://localhost:3000/users/login', data);
+      const { token } = response.data;
       localStorage.setItem('token', token);
-      setUser(user);
-      // Redirect based on role will be handled here
+      const userResponse = await axios.get('http://localhost:3000/users/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUser(userResponse.data.user);
+      navigate(userResponse.data.user.role === 'manager' ? '/dashboard' : '/sales');
     } catch (error) {
       console.error('Login failed:', error);
     }

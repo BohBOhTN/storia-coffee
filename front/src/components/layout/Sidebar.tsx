@@ -57,6 +57,7 @@ export default function Sidebar() {
                     : 'text-gray-600 hover:bg-gray-50'
                 )
               }
+              onClick={() => setIsSidebarOpen(false)} // Close sidebar on link click
             >
               <Icon className="h-5 w-5 mr-3" />
               {label}
