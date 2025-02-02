@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Menu } from 'lucide-react';
+import { Bell } from 'lucide-react'; // Removed Menu import
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 
@@ -79,11 +79,7 @@ export default function Navbar() {
               </div>
             )}
           </div>
-          <div className="flex items-center">
-            <button className="md:hidden p-2 text-gray-500 hover:text-gray-700">
-              <Menu className="h-6 w-6" />
-            </button>
-          </div>
+          {/* Removed the existing toggle button */}
         </div>
       </div>
     </nav>

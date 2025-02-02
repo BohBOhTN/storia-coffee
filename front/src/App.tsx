@@ -20,20 +20,22 @@ function App() {
       <Router>
         <AuthProvider>
           <CartProvider>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/" element={<DashboardLayout />}>
-                {/* Manager Routes */}
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="products" element={<Products />} />
-                <Route path="users" element={<Users />} />
-                <Route path="alerts" element={<Alerts />} />
-                <Route path="categories" element={<Categories />} /> {/* Add Categories route */}
-                
-                {/* User Routes */}
-                <Route path="sales" element={<Sales />} />
-              </Route>
-            </Routes>
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'auto' }}>
+              <Routes>
+                <Route path="/" element={<Login />} />
+                <Route path="/" element={<DashboardLayout />}>
+                  {/* Manager Routes */}
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="products" element={<Products />} />
+                  <Route path="users" element={<Users />} />
+                  <Route path="alerts" element={<Alerts />} />
+                  <Route path="categories" element={<Categories />} /> {/* Add Categories route */}
+                  
+                  {/* User Routes */}
+                  <Route path="sales" element={<Sales />} />
+                </Route>
+              </Routes>
+            </div>
           </CartProvider>
         </AuthProvider>
       </Router>
