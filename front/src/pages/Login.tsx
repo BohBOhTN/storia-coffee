@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -19,6 +19,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function Login() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
+  const [notification, setNotification] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -38,9 +39,11 @@ export default function Login() {
         },
       });
       setUser(userResponse.data.user);
+      setNotification('Login successful!');
       navigate(userResponse.data.user.role === 'manager' ? '/dashboard' : '/sales');
     } catch (error) {
       console.error('Login failed:', error);
+      setNotification('Login failed. Please check your credentials.');
     }
   };
 
@@ -58,6 +61,11 @@ export default function Login() {
             Sign in to your account
           </p>
         </div>
+        {notification && (
+          <div className={`text-center text-sm ${notification.includes('successful') ? 'text-green-600' : 'text-red-600'}`}>
+            {notification}
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm space-y-4">
             <Input

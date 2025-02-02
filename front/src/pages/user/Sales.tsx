@@ -15,36 +15,41 @@ interface Product {
   description: string;
 }
 
-const categories = ['All', 'Hot Coffee', 'Cold Coffee', 'Tea', 'Pastries'];
-
 export default function Sales() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All']);
   const { addItem, itemCount } = useCart();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProductsAndCategories = async () => {
       try {
-        const productResponse = await axios.get('http://localhost:3000/articles/');
+        const [productResponse, categoryResponse] = await Promise.all([
+          axios.get('http://localhost:3000/articles/'),
+          axios.get('http://localhost:3000/categories/')
+        ]);
+
         const productsWithCategory = await Promise.all(
           productResponse.data.map(async (product: any) => {
-            const categoryResponse = await axios.get(`http://localhost:3000/categories/${product.category_id}`);
+            const category = categoryResponse.data.find((cat: any) => cat.id === product.category_id);
             return {
               ...product,
               price: parseFloat(product.price), // Convert price to number
-              category: categoryResponse.data.name,
+              category: category ? category.name : 'Unknown',
             };
           })
         );
+
         setProducts(productsWithCategory);
+        setCategories(['All', ...categoryResponse.data.map((cat: any) => cat.name)]);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching products and categories:', error);
       }
     };
 
-    fetchProducts();
+    fetchProductsAndCategories();
   }, []);
 
   const filteredProducts = products.filter(product => {
