@@ -16,14 +16,11 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-auto">
-      <Navbar />
-      <div className="flex flex-col md:flex-row">
-        <Sidebar />
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          <Outlet />
-        </main>
-      </div>
+    <div className="flex">
+      <Sidebar />
+      <main className="flex-1 p-4">
+        <Outlet />
+      </main>
     </div>
   );
 }

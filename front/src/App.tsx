@@ -10,7 +10,8 @@ import Products from './pages/manager/Products';
 import Users from './pages/manager/Users';
 import Alerts from './pages/manager/Alerts';
 import Sales from './pages/user/Sales';
-import Categories from './components/pages/Categories'; // Correct import path for Categories page
+import Categories from './components/pages/Categories'; // Ensure this path is correct
+import Profile from './pages/user/Profile';
 
 const queryClient = new QueryClient();
 
@@ -22,7 +23,8 @@ function App() {
           <CartProvider>
             <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'auto' }}>
               <Routes>
-                <Route path="/" element={<Login />} />
+                <Route path="/" element={<Navigate to="/login" />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/" element={<DashboardLayout />}>
                   {/* Manager Routes */}
                   <Route path="dashboard" element={<Dashboard />} />
@@ -33,6 +35,7 @@ function App() {
                   
                   {/* User Routes */}
                   <Route path="sales" element={<Sales />} />
+                  <Route path="profile" element={<Profile />} /> {/* Add Profile route */}
                 </Route>
               </Routes>
             </div>
