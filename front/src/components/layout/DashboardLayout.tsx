@@ -7,6 +7,8 @@ import Sidebar from './Sidebar';
 export function DashboardLayout() {
   const { user, isLoading } = useAuth();
 
+  console.log('DashboardLayout user:', user); // Debug log
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
