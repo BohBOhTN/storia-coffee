@@ -5,6 +5,8 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { CartDrawer } from '../../components/cart/CartDrawer';
 import { useCart } from '../../contexts/CartContext';
+import { useNavigate } from 'react-router-dom'; // Changed import
+import { ConfirmationModal } from '../../components/ui/ConfirmationModal';
 
 interface Product {
   id: number;
@@ -17,11 +19,13 @@ interface Product {
 
 export default function Sales() {
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(['All']);
-  const { addItem, itemCount } = useCart();
+  const { addItem, itemCount, items: cartItems, clearCart } = useCart();
+  const navigate = useNavigate(); // Changed variable
 
   useEffect(() => {
     const fetchProductsAndCategories = async () => {
@@ -57,6 +61,42 @@ export default function Sales() {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleCheckout = async () => {
+    console.log('Checkout button clicked');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+      console.log('Token found:', token);
+
+      const userResponse = await axios.get('http://localhost:3000/users/me/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('User response:', userResponse.data);
+
+      const userId = userResponse.data.user.id;
+      console.log('User ID:', userId);
+
+      const salesData = cartItems.map((item) => ({
+        user_id: userId,
+        article_id: item.id,
+        quantity: item.quantity,
+      }));
+      console.log('Sales data:', salesData);
+
+      await axios.post('http://localhost:3000/sales', salesData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Sales posted successfully');
+
+      clearCart();
+      setIsConfirmationOpen(true);
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -143,7 +183,8 @@ export default function Sales() {
         ))}
       </div>
 
-      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} onCheckout={handleCheckout} />
+      <ConfirmationModal isOpen={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)} />
     </div>
   );
 }

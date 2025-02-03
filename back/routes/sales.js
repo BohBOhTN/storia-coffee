@@ -26,13 +26,21 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { user_id, article_id, quantity } = req.body;
+  const sales = req.body;
+  if (!Array.isArray(sales)) {
+    return res.status(400).json({ error: 'Request body must be an array of sales' });
+  }
+
   try {
-    const result = await pool.query(
-      'INSERT INTO sales (user_id, article_id, quantity) VALUES ($1, $2, $3) RETURNING *',
-      [user_id, article_id, quantity]
+    const salesPromises = sales.map(({ user_id, article_id, quantity }) =>
+      pool.query(
+        'INSERT INTO sales (user_id, article_id, quantity) VALUES ($1, $2, $3) RETURNING *',
+        [user_id, article_id, quantity]
+      )
     );
-    res.json(result.rows[0]);
+
+    const results = await Promise.all(salesPromises);
+    res.json(results.map(result => result.rows[0]));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import { useCart } from '../../contexts/CartContext';
 import { Button } from '../ui/Button';
 
-export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+export function CartDrawer({ isOpen, onClose, onCheckout }: { isOpen: boolean; onClose: () => void; onCheckout: () => void }) {
   const { items, removeItem, updateQuantity } = useCart();
 
   if (!isOpen) return null;
@@ -83,7 +83,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                   <p>${items.reduce((total, item) => total + Number(item.price) * item.quantity, 0).toFixed(2)}</p>
                 </div>
                 <div className="mt-6">
-                  <Button className="w-full bg-brown-600 text-white hover:bg-brown-700">
+                  <Button onClick={onCheckout} className="w-full bg-brown-600 text-white hover:bg-brown-700">
                     Checkout
                   </Button>
                 </div>
